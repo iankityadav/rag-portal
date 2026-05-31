@@ -1,0 +1,14 @@
+/* minimal styles for dev */
+body {
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial;
+  margin: 0;
+}
+#root {
+  min-height: 100vh;
+}
