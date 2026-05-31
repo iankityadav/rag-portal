@@ -1,50 +1,96 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# RAG Testing Portal — Constitution
 
-## Core Principles
+> The immutable principles governing how this project is built and evolved.
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+---
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+## Article I: Browser-First, Zero-Server Principle
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+All data processing — ingestion, chunking, embedding, similarity search — MUST run
+entirely in the browser. No backend server shall be introduced. If a capability cannot
+be achieved client-side, it must be deferred or replaced with a browser-compatible
+alternative.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+- OPFS (Origin Private File System) is the ONLY persistent storage layer.
+- IndexedDB may be used for lightweight metadata only.
+- `localStorage` / `sessionStorage` are FORBIDDEN for vector or document data.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+---
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Article II: Pre-Flight Check Mandate
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+The application MUST perform a Browser Capability Check before loading any feature.
+This check is NON-NEGOTIABLE and runs synchronously on every cold start.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+Required checks (all must pass before the app proceeds):
+1. `navigator.storage.getDirectory()` — OPFS availability
+2. `crossOriginIsolated` — SharedArrayBuffer support (required by ONNX WASM)
+3. Available storage quota ≥ 200 MB
+4. WebAssembly support (`typeof WebAssembly === 'object'`)
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+If any check fails, the app MUST display a human-readable error with remediation
+instructions. It MUST NOT proceed to load the main UI.
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+---
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+## Article III: Embedding Model Constraints
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+- The embedding model (`Xenova/all-MiniLM-L6-v2`) is downloaded ONCE and cached
+  in OPFS under `/models/`.
+- Model download only happens after the user explicitly confirms (modal prompt).
+- The app MUST display download progress (bytes downloaded / total).
+- No embedding request shall be made to any external API unless the user explicitly
+  configures an API-key-based embedding provider in Settings.
+
+---
+
+## Article IV: LLM Provider Agnosticism
+
+The LLM layer (answer generation) MUST be provider-agnostic:
+- Anthropic Claude (API key, user-supplied)
+- OpenAI (API key, user-supplied)
+- Ollama (local, `http://localhost:11434`)
+
+API keys MUST be stored in `sessionStorage` ONLY (cleared on tab close).
+They MUST NEVER be written to OPFS, IndexedDB, or any persistent store.
+
+---
+
+## Article V: Simplicity Gate
+
+- Maximum 3 top-level feature modules for initial implementation.
+- No abstraction layers wrapping browser-native APIs unless justified in writing.
+- No build-time code generation; no backend scaffolding tools.
+
+Initial modules:
+1. `preflight` — Browser capability checks
+2. `ingestion` — Document loading, chunking, embedding, OPFS storage
+3. `query` — Similarity search, context assembly, LLM call, result display
+
+---
+
+## Article VI: Test-First Imperative
+
+All logic (chunking, cosine similarity, OPFS read/write helpers) MUST have unit
+tests written BEFORE implementation. Tests run in-browser via Vitest.
+
+---
+
+## Article VII: Privacy by Design
+
+- No telemetry, no analytics, no external calls except:
+  - Model CDN (Hugging Face) for one-time model download
+  - User-configured LLM API endpoint
+- Document content never leaves the browser unless the user initiates an LLM call.
+
+---
+
+## Article VIII: Amendment Process
+
+Changes to this constitution require:
+1. A written rationale in the PR description
+2. Explicit acknowledgment that the change does not violate browser-first or privacy
+   principles
+3. Update to the version line below
+
+**Version**: 1.0.0 — Initial
