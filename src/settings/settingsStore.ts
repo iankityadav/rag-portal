@@ -8,10 +8,10 @@ const DEFAULTS: AppSettings = {
   systemPromptTemplate:
     "You are a helpful assistant. Use the context provided.",
   llmProvider: null,
-  ollamaBaseUrl: undefined,
-  ollamaModel: undefined,
-  anthropicModel: undefined,
-  openaiModel: undefined,
+  ollamaBaseUrl: "http://localhost:11434",
+  ollamaModel: "llama3",
+  anthropicModel: "claude-sonnet-4-6",
+  openaiModel: "gpt-4o",
 };
 
 // Session-only API keys (not persisted)

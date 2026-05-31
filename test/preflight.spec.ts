@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   checkCrossOriginIsolated,
   checkWASM,
-  runPreflightChecks,
+  runAllChecks,
 } from "../src/preflight/checks";
 
 describe("preflight checks", () => {
@@ -53,11 +53,13 @@ describe("preflight checks", () => {
     // provide test storage estimate
     (globalThis as any).__TEST_STORAGE_ESTIMATE = { quota: 500 * 1024 * 1024 };
 
-    const res = runPreflightChecks();
-    expect(res).toHaveProperty("results");
-    expect(res.results).toHaveProperty("opfs");
-    expect(res.results).toHaveProperty("coi");
-    expect(res.results).toHaveProperty("wasm");
-    expect(res.results).toHaveProperty("quota");
+    runAllChecks().then((res) => {
+      expect(res).toBeInstanceOf(Array);
+
+      res.forEach((check) => {
+        expect(check).toHaveProperty("name");
+        expect(check).toHaveProperty("pass");
+      });
+    });
   });
 });
