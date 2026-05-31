@@ -5,7 +5,7 @@ interface ProgressProps {
     variant?: "default" | "success" | "warning";
 }
 
-export function Progress({ value, label, sublabel, variant = "default" }: ProgressProps) {
+export function Progress({ value, label, sublabel, variant = "default" }: Readonly<ProgressProps>) {
     return (
         <div className="progress-wrap">
             {(label || sublabel) && (

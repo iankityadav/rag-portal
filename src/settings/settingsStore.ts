@@ -24,6 +24,7 @@ export async function loadSettings(): Promise<AppSettings> {
     const parsed = JSON.parse(raw) as Partial<AppSettings>;
     return { ...DEFAULTS, ...parsed };
   } catch (e) {
+    console.log("parsing failed, loading defaults", e);
     return { ...DEFAULTS };
   }
 }

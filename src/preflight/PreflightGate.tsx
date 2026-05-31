@@ -10,7 +10,7 @@ interface PreflightGateProps {
 
 type Status = "checking" | "pass" | "fail";
 
-export function PreflightGate({ children }: PreflightGateProps) {
+export function PreflightGate({ children }: Readonly<PreflightGateProps>) {
     const [status, setStatus] = useState<Status>("checking");
     const [results, setResults] = useState<PreflightResult[]>([]);
 

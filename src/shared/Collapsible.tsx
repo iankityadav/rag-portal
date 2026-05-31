@@ -9,7 +9,7 @@ interface CollapsibleProps {
     mono?: boolean;
 }
 
-export function Collapsible({ label, badge, defaultOpen = false, children, mono }: CollapsibleProps) {
+export function Collapsible({ label, badge, defaultOpen = false, children, mono }: Readonly<CollapsibleProps>) {
     const [open, setOpen] = useState(defaultOpen);
 
     return (

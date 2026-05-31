@@ -49,7 +49,7 @@ export function ResultsPanel({ results, answer, isLoading }: Readonly<ResultsPan
                 <div className="results-chunks">
                     {results.map((r, i) => (
                         <Collapsible
-                            key={i}
+                            key={`${r.docId}-${i}`}
                             label={r.docName}
                             badge={`${r.score.toFixed(2)}`}
                             defaultOpen={i === 0}

@@ -25,7 +25,7 @@ export function checkWASM(): PreflightResult {
 }
 
 export function checkCrossOriginIsolated(): PreflightResult {
-  const pass = window.crossOriginIsolated === true;
+  const pass = globalThis.crossOriginIsolated === true;
   return {
     name: "Cross-Origin Isolation",
     pass,

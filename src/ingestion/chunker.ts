@@ -27,8 +27,8 @@ export function splitIntoChunks(
 
   const chunks: string[] = [];
   let buffer = "";
-  for (let i = 0; i < sentences.length; i++) {
-    const s = sentences[i];
+  for (const element of sentences) {
+    const s = element;
     if ((buffer + (buffer ? " " : "") + s).length <= chunkSize) {
       buffer = buffer ? buffer + " " + s : s;
       continue;

@@ -32,9 +32,9 @@ export function SettingsPanel() {
                 <section className="settings-section">
                     <h3 className="settings-section-title">Chunking</h3>
                     <div className="settings-row">
-                        <label className="settings-label">
+                        <span className="settings-label">
                             Chunk size <span className="settings-hint">(approx tokens)</span>
-                        </label>
+                        </span>
                         <div className="settings-input-group">
                             <input
                                 type="number"
@@ -46,9 +46,9 @@ export function SettingsPanel() {
                         </div>
                     </div>
                     <div className="settings-row">
-                        <label className="settings-label">
+                        <span className="settings-label">
                             Overlap <span className="settings-hint">(approx tokens)</span>
-                        </label>
+                        </span>
                         <input
                             type="number"
                             className="settings-input"
@@ -63,7 +63,7 @@ export function SettingsPanel() {
                 <section className="settings-section">
                     <h3 className="settings-section-title">Retrieval</h3>
                     <div className="settings-row">
-                        <label className="settings-label">Top-K results</label>
+                        <span className="settings-label">Top-K results</span>
                         <input
                             type="number"
                             className="settings-input"
@@ -92,7 +92,7 @@ export function SettingsPanel() {
                     {llmTab === "anthropic" && (
                         <div className="settings-provider-fields">
                             <div className="settings-row">
-                                <label className="settings-label">API Key <span className="settings-session-tag">session only</span></label>
+                                <span className="settings-label">API Key <span className="settings-session-tag">session only</span></span>
                                 <input
                                     type="password"
                                     className="settings-input settings-input--wide"
@@ -103,7 +103,7 @@ export function SettingsPanel() {
                                 />
                             </div>
                             <div className="settings-row">
-                                <label className="settings-label">Model</label>
+                                <span className="settings-label">Model</span>
                                 <input
                                     className="settings-input settings-input--wide"
                                     value={settings.anthropicModel}
@@ -116,7 +116,7 @@ export function SettingsPanel() {
                     {llmTab === "openai" && (
                         <div className="settings-provider-fields">
                             <div className="settings-row">
-                                <label className="settings-label">API Key <span className="settings-session-tag">session only</span></label>
+                                <span className="settings-label">API Key <span className="settings-session-tag">session only</span></span>
                                 <input
                                     type="password"
                                     className="settings-input settings-input--wide"
@@ -127,7 +127,7 @@ export function SettingsPanel() {
                                 />
                             </div>
                             <div className="settings-row">
-                                <label className="settings-label">Model</label>
+                                <span className="settings-label">Model</span>
                                 <input
                                     className="settings-input settings-input--wide"
                                     value={settings.openaiModel}
@@ -140,7 +140,7 @@ export function SettingsPanel() {
                     {llmTab === "ollama" && (
                         <div className="settings-provider-fields">
                             <div className="settings-row">
-                                <label className="settings-label">Base URL</label>
+                                <span className="settings-label">Base URL</span>
                                 <input
                                     className="settings-input settings-input--wide"
                                     value={settings.ollamaBaseUrl}
@@ -148,7 +148,7 @@ export function SettingsPanel() {
                                 />
                             </div>
                             <div className="settings-row">
-                                <label className="settings-label">Model</label>
+                                <span className="settings-label">Model</span>
                                 <input
                                     className="settings-input settings-input--wide"
                                     value={settings.ollamaModel}

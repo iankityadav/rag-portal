@@ -5,7 +5,7 @@ interface PreflightErrorProps {
     results: PreflightResult[];
 }
 
-export function PreflightError({ results }: PreflightErrorProps) {
+export function PreflightError({ results }: Readonly<PreflightErrorProps>) {
     const failed = results.filter((r) => !r.pass);
 
     return (
@@ -46,7 +46,7 @@ export function PreflightError({ results }: PreflightErrorProps) {
                     ))}
                 </div>
 
-                <button className="preflight-retry-btn" onClick={() => window.location.reload()}>
+                <button className="preflight-retry-btn" onClick={() => globalThis.location.reload()}>
                     Retry checks
                 </button>
             </div>
