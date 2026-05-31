@@ -1,67 +1,69 @@
-export type PreflightResult = { pass: boolean; error?: string };
+import type { PreflightResult } from "../shared/types";
 
-export function checkOPFS(): PreflightResult {
-  // In real browser this would be: typeof navigator.storage?.getDirectory === 'function'
+export async function checkOPFS(): Promise<PreflightResult> {
   try {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const has =
-      typeof (globalThis as any).navigator?.storage?.getDirectory ===
-      "function";
+    await navigator.storage.getDirectory();
+    return { name: "OPFS", pass: true };
+  } catch {
     return {
-      pass: Boolean(has),
-      error: has ? undefined : "OPFS not available",
+      name: "OPFS",
+      pass: false,
+      error: "Origin Private File System is not available in this browser.",
+      remediation: "Use Chrome 86+, Firefox 111+, or Safari 15.2+.",
     };
-  } catch (e) {
-    return { pass: false, error: "OPFS check threw" };
-  }
-}
-
-export function checkCrossOriginIsolated(): PreflightResult {
-  try {
-    const pass = !!(globalThis as any).crossOriginIsolated;
-    return { pass, error: pass ? undefined : "crossOriginIsolated is false" };
-  } catch (e) {
-    return { pass: false, error: "crossOriginIsolated check threw" };
   }
 }
 
 export function checkWASM(): PreflightResult {
-  try {
-    const pass = typeof (globalThis as any).WebAssembly === "object";
-    return { pass, error: pass ? undefined : "WebAssembly not supported" };
-  } catch (e) {
-    return { pass: false, error: "WebAssembly check threw" };
-  }
-}
-
-export function checkStorageQuota(
-  minBytes = 200 * 1024 * 1024,
-): PreflightResult {
-  // In-browser we'd call navigator.storage.estimate()
-  try {
-    const estimate = (globalThis as any).__TEST_STORAGE_ESTIMATE || {
-      quota: 500 * 1024 * 1024,
-    }; // default 500MB
-    const pass =
-      typeof estimate.quota === "number" && estimate.quota >= minBytes;
-    return { pass, error: pass ? undefined : `Quota below ${minBytes} bytes` };
-  } catch (e) {
-    return { pass: false, error: "Storage quota check threw" };
-  }
-}
-
-export function runPreflightChecks() {
-  const results = {
-    opfs: checkOPFS(),
-    coi: checkCrossOriginIsolated(),
-    wasm: checkWASM(),
-    quota: checkStorageQuota(),
+  const pass = typeof WebAssembly === "object";
+  return {
+    name: "WebAssembly",
+    pass,
+    error: pass ? undefined : "WebAssembly is not available.",
+    remediation: pass ? undefined : "Enable WebAssembly in your browser flags.",
   };
-  const pass =
-    results.opfs.pass &&
-    results.coi.pass &&
-    results.wasm.pass &&
-    results.quota.pass;
-  return { pass, results };
+}
+
+export function checkCrossOriginIsolated(): PreflightResult {
+  const pass = window.crossOriginIsolated === true;
+  return {
+    name: "Cross-Origin Isolation",
+    pass,
+    error: pass
+      ? undefined
+      : "Page is not cross-origin isolated. SharedArrayBuffer is unavailable.",
+    remediation: pass
+      ? undefined
+      : "Add these response headers to your dev server:\n  Cross-Origin-Opener-Policy: same-origin\n  Cross-Origin-Embedder-Policy: require-corp",
+  };
+}
+
+export async function checkStorageQuota(minMB = 200): Promise<PreflightResult> {
+  try {
+    const est = await navigator.storage.estimate();
+    const availableMB = ((est.quota ?? 0) - (est.usage ?? 0)) / 1024 / 1024;
+    const pass = availableMB >= minMB;
+    return {
+      name: "Storage Quota",
+      pass,
+      error: pass
+        ? undefined
+        : `Only ${Math.round(availableMB)} MB available (need ${minMB} MB).`,
+      remediation: pass
+        ? undefined
+        : "Free up browser storage in your browser settings.",
+    };
+  } catch {
+    return {
+      name: "Storage Quota",
+      pass: false,
+      error: "Could not estimate available storage.",
+      remediation: "Try a different browser or clear existing site data.",
+    };
+  }
+}
+
+export async function runAllChecks(): Promise<PreflightResult[]> {
+  const [opfs, quota] = await Promise.all([checkOPFS(), checkStorageQuota()]);
+  return [opfs, checkWASM(), checkCrossOriginIsolated(), quota];
 }

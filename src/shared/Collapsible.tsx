@@ -1,11 +1,25 @@
-import React, { useState } from 'react';
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 
-export function Collapsible({ children, title }: { children: React.ReactNode; title: string }) {
-    const [open, setOpen] = useState(false);
+interface CollapsibleProps {
+    label: string;
+    badge?: string;
+    defaultOpen?: boolean;
+    children: React.ReactNode;
+    mono?: boolean;
+}
+
+export function Collapsible({ label, badge, defaultOpen = false, children, mono }: CollapsibleProps) {
+    const [open, setOpen] = useState(defaultOpen);
+
     return (
-        <div>
-            <button onClick={() => setOpen(!open)}>{title} {open ? '▾' : '▸'}</button>
-            {open && <div>{children}</div>}
+        <div className={`collapsible ${open ? "collapsible--open" : ""}`}>
+            <button className="collapsible-trigger" onClick={() => setOpen((o) => !o)}>
+                <ChevronDown size={12} className="collapsible-chevron" />
+                <span className={mono ? "mono" : ""}>{label}</span>
+                {badge && <span className="collapsible-badge">{badge}</span>}
+            </button>
+            {open && <div className="collapsible-body">{children}</div>}
         </div>
     );
 }

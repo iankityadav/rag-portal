@@ -1,21 +1,45 @@
-import React, { useEffect, useState } from 'react';
-import { runPreflightChecks } from './checks';
-import { PreflightError } from './PreflightError';
+import { useEffect, useState } from "react";
+import { runAllChecks } from "./checks";
+import { PreflightError } from "./PreflightError";
+import type { PreflightResult } from "../shared/types";
+import { Zap } from "lucide-react";
 
-export function PreflightGate({ children }: { children: React.ReactNode }) {
-    const [loading, setLoading] = useState(true);
-    const [results, setResults] = useState<any>(null);
+interface PreflightGateProps {
+    children: React.ReactNode;
+}
+
+type Status = "checking" | "pass" | "fail";
+
+export function PreflightGate({ children }: PreflightGateProps) {
+    const [status, setStatus] = useState<Status>("checking");
+    const [results, setResults] = useState<PreflightResult[]>([]);
 
     useEffect(() => {
-        (async () => {
-            const res = runPreflightChecks();
-            setResults(res.results || res);
-            setLoading(false);
-        })();
+        runAllChecks().then((r) => {
+            setResults(r);
+            setStatus(r.every((x) => x.pass) ? "pass" : "fail");
+        });
     }, []);
 
-    if (loading) return <div>Checking browser compatibility…</div>;
-    const failed = Object.values(results).some((r: any) => !r.pass);
-    if (failed) return <PreflightError results={Object.values(results)} />;
+    if (status === "checking") {
+        return (
+            <div className="preflight-loading">
+                <div className="preflight-loading-inner">
+                    <div className="preflight-spinner">
+                        <Zap size={18} />
+                    </div>
+                    <p className="preflight-loading-text">Checking browser compatibility…</p>
+                    <div className="preflight-dots">
+                        <span /><span /><span />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (status === "fail") {
+        return <PreflightError results={results} />;
+    }
+
     return <>{children}</>;
 }
